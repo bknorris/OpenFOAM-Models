@@ -1,0 +1,14 @@
+#!/bin/sh
+# cd "${0%/*}" || exit                                # Run from this directory
+. ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions        # Tutorial run functions
+#------------------------------------------------------------------------------
+
+echo "removing log files and processor folders..."
+rm -r log.* processor*
+
+runApplication decomposePar
+
+runParallel $(getApplication)
+
+runApplication foamLog log.interFoam
+#------------------------------------------------------------------------------

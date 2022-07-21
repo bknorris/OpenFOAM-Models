@@ -1,0 +1,8 @@
+#!/bin/bash
+
+shopt -s extglob
+
+# Remove old log files
+echo "Cleaning directory by removing all old model files..."
+LIST=""constant"|"system"|"0"|"0.org"|"dummy.foam"|"RestartModel"|"Allrun"|"Allclean"|"postProcessing"|"logs""
+rm -rdf !($LIST)

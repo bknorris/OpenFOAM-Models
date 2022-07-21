@@ -1,0 +1,135 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2006                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     interFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         270.0; //adjust based on wavePeriod ~ 14 wave cycles
+
+deltaT          0.001;
+
+writeControl    adjustable;
+
+writeInterval   0.5; //output will be 2 Hz
+
+purgeWrite      600; //make sure to turn this on for most models
+
+//purgeWrite needs to be set to the non time-scaled wave period*10*2
+
+writeFormat     ascii;
+
+writePrecision  8;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable yes;
+
+adjustTimeStep  yes;
+
+maxCo           0.3;
+
+maxAlphaCo      0.3;
+
+maxDeltaT       0.05;
+
+functions
+{
+    residuals
+    {
+        type                solverInfo;
+        libs                ("libutilityFunctionObjects.so");
+        enabled             true;
+        writeControl        timeStep;
+        writeInterval       1;
+
+        fields
+        (
+            U
+            p_rgh
+            epsilon
+            k
+        );
+    }
+    freeSurface
+    {
+        type surfaces;
+        libs                ("libsampling.so");
+        writeControl        outputTime;
+        outputInterval      1;
+        surfaceFormat       raw;
+        interpolationScheme cellPoint;
+        surfaces
+        (
+            freeSurface
+            {
+                type        isoSurface;
+                isoField    alpha.water;
+                isoValue    0.5;
+                interpolate true;
+            }
+        );
+        fields
+        (
+            alpha.water
+        );
+    }
+    bathySample
+    {
+        type            surfaceFieldValue;
+        libs            ("libfieldFunctionObjects.so");
+        enabled         true;
+
+        writeControl    outputTime;
+        outputInterval  1;
+        surfaceFormat   raw;
+        interpolationScheme cellPoint;
+
+        fields
+        (
+            U
+            p_rgh
+            k
+            epsilon
+        );
+
+        log             true;
+        writeFields     true;
+
+        regionType      sampledSurface;
+        name            bathymetrySample;
+
+        sampledSurfaceDict
+        {
+            type        sampledTriSurfaceMesh;
+            surface     bathymetry_sample.stl;
+            source      cells;
+            interpolate false;
+        }
+        operation   none;    
+    }
+}
+
+// ************************************************************************* //

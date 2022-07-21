@@ -1,0 +1,56 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v1906                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      fvOptions;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+multiphaseStabilizedTurbulence1
+{
+  type            multiphaseStabilizedTurbulence;
+    active          yes;
+
+    multiphaseStabilizedTurbulenceCoeffs
+    {
+        // Optional coefficients
+        lambda2         0.4;   // A value of 0 sets the nut correction to 0 
+        Cmu             0.09;  // from k-epsilon model
+        C               1.33;  // model coefficient from k-epsilon model
+        alpha           1.36;  // 1/Prt
+    }
+}
+// Notes:
+//lambda2 defines the threshold of the rotation-to-strain rate ratio which will be formally stable (see e.g. LF18, Eq. 2.38).
+
+// C depends on turbulence model closure coefficients. Below C is written in terms of the closure coefficients in OpenFOAM for the different models (Note that the naming of the closure coefficients is different from LF2018):
+
+//kOmega: C = beta/(Cmu*gamma) = 1.54; // See LF18, Eq. 2.35, taking Cmu=beta^* and gamma=alpha
+//kOmegaSST: C = beta1/(betaStar*gamma1) = 1.50; // See LF18, Eq. A.8
+//kEpsilon: C = C2/C1= 1.33; // See LF18, Eq. A.16
+//RNGkEpsilon: C = 1.26*C2/C1 = 1.49; // See LF18, Eq. A.23
+// The value given in the default fvOptions file above comes from the closure coefficients of the Wilcox (2006) k-omega model.
+
+// alpha controls the strength of the buoyancy production term, corresponding to variable alpha_b^* in LF18. If alpha=0 is used, then the buoyancy production term will be inactive. (Note for clarity that alpha here is different from the closure coefficient alpha in the Wilcox (2006) k-omega model.)
+
+limitU
+{
+    type            limitVelocity;
+    active          yes;
+
+    selectionMode   all;
+    max             0.3; // change this value depending on waveProperties!
+    // The max value should be set based on the largest wave velocities to be consistent across the board.
+
+}
+// ************************************************************************* //

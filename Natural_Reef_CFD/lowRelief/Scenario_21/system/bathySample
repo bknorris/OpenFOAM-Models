@@ -1,0 +1,48 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2006                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      sampleDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+type            surfaceFieldValue;
+libs            ("libfieldFunctionObjects.so");
+enabled         true;
+
+writeControl    outputTime;
+outputInterval  1;
+surfaceFormat   raw;
+interpolationScheme cellPoint;
+
+fields
+(
+    U
+    p_rgh
+    k
+    epsilon
+);
+
+log             true;
+writeFields     true;
+
+regionType      sampledSurface;
+name            bathymetrySample;
+
+sampledSurfaceDict
+{
+    type        sampledTriSurfaceMesh;
+    surface     bathymetry_sample.stl;
+    source      cells;
+    interpolate false;
+}
+operation   none;    
